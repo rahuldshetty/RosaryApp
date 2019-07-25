@@ -132,7 +132,8 @@ public class SubMainActivity extends AppCompatActivity {
 
                     if(subPath.equals("romi"))
                         sub.setType("eng");
-                    else sub.setType("kan");
+                    else
+                        sub.setType("kan");
 
                     subTitles.add(sub);
                     j++;

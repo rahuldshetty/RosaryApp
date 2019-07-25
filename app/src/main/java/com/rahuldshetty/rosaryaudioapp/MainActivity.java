@@ -29,9 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
         logo = findViewById(R.id.splash_logo);
 
-        Animation aniFade = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in);
-        logo.startAnimation(aniFade);
-
 
         Thread background = new Thread() {
             public void run() {

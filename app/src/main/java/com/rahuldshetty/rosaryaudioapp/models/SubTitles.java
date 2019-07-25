@@ -155,5 +155,6 @@ public class SubTitles implements Parcelable {
         dest.writeString(path);
         dest.writeString(songPath);
         dest.writeString(fileName);
+        dest.writeString(type);
     }
 }
