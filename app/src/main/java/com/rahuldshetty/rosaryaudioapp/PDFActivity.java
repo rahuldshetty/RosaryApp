@@ -42,6 +42,14 @@ public class PDFActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdf);
 
+
+        pdfView = findViewById(R.id.pdf_viewer);
+        seekBar = findViewById(R.id.player_seek);
+        playBtn = findViewById(R.id.player_play);
+        title = findViewById(R.id.player_title);
+        start= findViewById(R.id.player_start);
+        end = findViewById(R.id.player_end);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -59,121 +67,117 @@ public class PDFActivity extends AppCompatActivity {
                 // app-defined int constant that should be quite unique
 
                 return;
-            }
-        }
+            }else{
+                final SubTitles subTitle = (SubTitles) getIntent().getParcelableExtra("SUB");
 
-        pdfView = findViewById(R.id.pdf_viewer);
-        seekBar = findViewById(R.id.player_seek);
-        playBtn = findViewById(R.id.player_play);
-        title = findViewById(R.id.player_title);
-        start= findViewById(R.id.player_start);
-        end = findViewById(R.id.player_end);
-
-        final SubTitles subTitle = (SubTitles) getIntent().getParcelableExtra("SUB");
-
-        try {
-            AssetFileDescriptor fd = getAssets().openFd(subTitle.getSongPath());
-            player = new Player(fd);
-        }
-        catch (Exception e){
-            System.out.println("EXCEPTION:"+e);
-        }
-
-        title.setText(subTitle.getTitle());
-        if(!subTitle.getType().equals("eng"))
-        {
-            Typeface typeface = ResourcesCompat.getFont(getApplicationContext(), R.font.nudi01ebold);
-            title.setTypeface(typeface);
-            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
-        }
-
-
-
-        try {
-            InputStream inputStream = getAssets().open(subTitle.getPath());
-            pdfView.fromStream(inputStream)
-                    .defaultPage(0)
-                    .autoSpacing(true)
-                    .enableAntialiasing(true)
-                    .load();
-        }
-        catch (Exception e){
-            System.out.println("EXCEPTION:"+e);
-        }
-
-        player.getMediaPlayer().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                 end.setText( milliSecondsToTimer(mp.getDuration()));
-            }
-        });
-
-
-        player.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
                 try {
                     AssetFileDescriptor fd = getAssets().openFd(subTitle.getSongPath());
-                    player.getMediaPlayer().reset();
-                    player.setDataSource(fd);
-                    seekBar.setProgress(0);
-                    playBtn.setImageResource(R.drawable.play);
+                    player = new Player(fd);
                 }
                 catch (Exception e){
                     System.out.println("EXCEPTION:"+e);
                 }
 
-            }
-        });
-
-        playBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                player.start();
-                if (player.isPlaying()) {
-                    playBtn.setImageResource(R.drawable.stop);
-                } else {
-                    playBtn.setImageResource(R.drawable.play);
+                title.setText(subTitle.getTitle());
+                if(!subTitle.getType().equals("eng"))
+                {
+                    Typeface typeface = ResourcesCompat.getFont(getApplicationContext(), R.font.nudi01ebold);
+                    title.setTypeface(typeface);
+                    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
                 }
-                start.post(mUpdatetimer);
-            }
-        });
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-                if(fromUser){
-                    float done=progress/100;
-                    boolean playing=player.isPlaying();
-                    player.pause();
-                    player.getMediaPlayer().seekTo((player.getMediaPlayer().getDuration()*progress)/100);
-                    long currentDur=player.getMediaPlayer().getCurrentPosition();
-                    String current=milliSecondsToTimer(currentDur);
-                    start.setText(current);
-                    if(playing)
-                        player.start();
-                }
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
 
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
                 try {
-                    seek();
-
+                    InputStream inputStream = getAssets().open(subTitle.getPath());
+                    pdfView.fromStream(inputStream)
+                            .defaultPage(0)
+                            .autoSpacing(true)
+                            .enableAntialiasing(true)
+                            .load();
                 }
                 catch (Exception e){
-                    timer.cancel();
+                    System.out.println("EXCEPTION:"+e);
                 }
+
+                player.getMediaPlayer().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        end.setText( milliSecondsToTimer(mp.getDuration()));
+                    }
+                });
+
+
+                player.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        try {
+                            AssetFileDescriptor fd = getAssets().openFd(subTitle.getSongPath());
+                            player.getMediaPlayer().reset();
+                            player.setDataSource(fd);
+                            seekBar.setProgress(0);
+                            playBtn.setImageResource(R.drawable.play);
+                        }
+                        catch (Exception e){
+                            System.out.println("EXCEPTION:"+e);
+                        }
+
+                    }
+                });
+
+                playBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        player.start();
+                        if (player.isPlaying()) {
+                            playBtn.setImageResource(R.drawable.stop);
+                        } else {
+                            playBtn.setImageResource(R.drawable.play);
+                        }
+                        start.post(mUpdatetimer);
+                    }
+                });
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                        if(fromUser){
+                            float done=progress/100;
+                            boolean playing=player.isPlaying();
+                            player.pause();
+                            player.getMediaPlayer().seekTo((player.getMediaPlayer().getDuration()*progress)/100);
+                            long currentDur=player.getMediaPlayer().getCurrentPosition();
+                            String current=milliSecondsToTimer(currentDur);
+                            start.setText(current);
+                            if(playing)
+                                player.start();
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+
+                timer = new Timer();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            seek();
+
+                        }
+                        catch (Exception e){
+                            timer.cancel();
+                        }
+                    }
+                }, 1000, 500);
+
+
+
             }
-        }, 1000, 500);
+        }
 
 
 
@@ -211,6 +215,116 @@ public class PDFActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted.
+
+                final SubTitles subTitle = (SubTitles) getIntent().getParcelableExtra("SUB");
+
+                try {
+                    AssetFileDescriptor fd = getAssets().openFd(subTitle.getSongPath());
+                    player = new Player(fd);
+                }
+                catch (Exception e){
+                    System.out.println("EXCEPTION:"+e);
+                }
+
+                title.setText(subTitle.getTitle());
+                if(!subTitle.getType().equals("eng"))
+                {
+                    Typeface typeface = ResourcesCompat.getFont(getApplicationContext(), R.font.nudi01ebold);
+                    title.setTypeface(typeface);
+                    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+                }
+
+
+
+                try {
+                    InputStream inputStream = getAssets().open(subTitle.getPath());
+                    pdfView.fromStream(inputStream)
+                            .defaultPage(0)
+                            .autoSpacing(true)
+                            .enableAntialiasing(true)
+                            .load();
+                }
+                catch (Exception e){
+                    System.out.println("EXCEPTION:"+e);
+                }
+
+                player.getMediaPlayer().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        end.setText( milliSecondsToTimer(mp.getDuration()));
+                    }
+                });
+
+
+                player.getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        try {
+                            AssetFileDescriptor fd = getAssets().openFd(subTitle.getSongPath());
+                            player.getMediaPlayer().reset();
+                            player.setDataSource(fd);
+                            seekBar.setProgress(0);
+                            playBtn.setImageResource(R.drawable.play);
+                        }
+                        catch (Exception e){
+                            System.out.println("EXCEPTION:"+e);
+                        }
+
+                    }
+                });
+
+                playBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        player.start();
+                        if (player.isPlaying()) {
+                            playBtn.setImageResource(R.drawable.stop);
+                        } else {
+                            playBtn.setImageResource(R.drawable.play);
+                        }
+                        start.post(mUpdatetimer);
+                    }
+                });
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                        if(fromUser){
+                            float done=progress/100;
+                            boolean playing=player.isPlaying();
+                            player.pause();
+                            player.getMediaPlayer().seekTo((player.getMediaPlayer().getDuration()*progress)/100);
+                            long currentDur=player.getMediaPlayer().getCurrentPosition();
+                            String current=milliSecondsToTimer(currentDur);
+                            start.setText(current);
+                            if(playing)
+                                player.start();
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+
+                timer = new Timer();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            seek();
+
+                        }
+                        catch (Exception e){
+                            timer.cancel();
+                        }
+                    }
+                }, 1000, 500);
+
+
+
+
             } else {
                 // User refused to grant permission.
             }
