@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 
 import com.rahuldshetty.rosaryaudioapp.activities.HomeActivity;
 
@@ -17,7 +14,6 @@ public class MainActivity extends AppCompatActivity {
     public static Activity activity;
     public static Context mainContext;
 
-    ImageView logo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
         activity = MainActivity.this;
         mainContext = getApplicationContext();
 
-        logo = findViewById(R.id.splash_logo);
 
 
         Thread background = new Thread() {

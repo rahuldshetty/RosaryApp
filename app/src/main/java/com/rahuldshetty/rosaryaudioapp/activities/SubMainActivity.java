@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.widget.ListView;
 
 import com.github.barteksc.pdfviewer.util.FileUtils;
+import com.rahuldshetty.rosaryaudioapp.PDFActivity;
 import com.rahuldshetty.rosaryaudioapp.R;
 import com.rahuldshetty.rosaryaudioapp.adapters.SubAdapter;
 import com.rahuldshetty.rosaryaudioapp.models.SubTitles;
@@ -174,6 +175,14 @@ public class SubMainActivity extends AppCompatActivity {
         adapter = new SubAdapter(this,titles);
         subListView.setAdapter(adapter);
 
+        if(titles.size()==1){
+            // go inside sub
+            Intent subHeading = new Intent(SubMainActivity.activity, PDFActivity.class);
+            subHeading.putExtra("SUB",titles.get(0));
+            startActivity(subHeading);
+            finish();
+
+        }
 
     }
 }
